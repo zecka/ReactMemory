@@ -7,7 +7,7 @@ import Card from './Card'
 import GuessCount from './GuessCount'
 import HallOfFame, { FAKE_HOF } from './HallOfFame'
 
-const SIDE = 2
+const SIDE = 6
 const SYMBOLS = '😀🎉💖🎩🐶🐱🦄🐬🌍🌛🌞💫🍎🍌🍓🍐🍟🍿'
 const VISUAL_PAUSE_MSECS = 750
 
@@ -81,21 +81,35 @@ class App extends Component {
      */
     return indexMatched ? 'visible' : 'hidden'
   }
+
+  /**
+   * Ici on défini ce qui se passe lors d'un clique sur une carte
+   *
+   */
   // Arrow fx for binding
   handleCardClick = index => {
-    const { currentPair } = this.state
+    const { currentPair } = this.state // on récupaire le tableau currentPair
+
+    // Ici on regarde si il y a deja deux carte dans le tableau currentPair
+    // En théorie ca ne devrai pas arriver a moin que le joueur clique trop vite
+    // Dans ce cas on ne fait rien, ignore ce dernier clique
     if (currentPair.length === 2) {
       return
     }
+    // Ici on vérifier si le tableau est vide
+    // Dans ce cas ca veux dire que c'est la première carte que l'on retourne
     if (currentPair.length === 0) {
-      this.setState({ currentPair: [index] })
+      this.setState({ currentPair: [index] }) // Ici on ajoute la première carte a comparé dans le tableau currentPair
       return
     }
 
+    // Ici on sait qu'on sure qu'on a retourné exactement une carte
+    // On va donc executer la fonction handleNewPairClosedBy en passant l'index de la carte cliqué en paramètre
     this.handleNewPairClosedBy(index)
   }
 
   handleNewPairClosedBy(index) {
+    // On récupère les valeurs de l'état local
     const { cards, currentPair, guesses, matchedCardIndices } = this.state
 
     const newPair = [currentPair[0], index]

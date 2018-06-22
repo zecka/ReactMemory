@@ -5,6 +5,7 @@ import './App.css'
 
 import Card from './Card'
 import GuessCount from './GuessCount'
+import HallOfFame, { FAKE_HOD, FAKE_HOF } from './HallOfFame'
 
 const SIDE = 6
 const SYMBOLS = '😀🎉💖🎩🐶🐱🦄🐬🌍🌛🌞💫🍎🍌🍓🍐🍟🍿'
@@ -36,7 +37,7 @@ class App extends Component {
           <Card card={card} key={index} feedback="visible" onClick={this.handleCardClick} />
         ))}
 
-        {won && <p>GAGNÉ !</p>}
+        {won && <HallOfFame entries={FAKE_HOF} />}
       </div>
     )
   }

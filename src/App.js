@@ -37,22 +37,48 @@ class App extends Component {
   }
 
   /*
-  * Retourne le "feedback" d'un carte grace à sont index
+  * Retourne le "feedback" d'une carte (en soit son état) grace à sont index
   * ici l'index est l'emplacement de la carte dans le tableau "cards" de l'etat principale
-  * l'etat peut etre: hidden, visible, justMatched, justMismatched 
+  * les feedback possible sont: hidden, visible, justMatched, justMismatched 
+  * Cette fonction est utilisée continuellement pour chaque cartes
+  * A ne pas confondre avec l'action qui sera utilisé au moment du clique
   */
   getFeedbackForCard(index) {
+    // ICI on récupère currentPair et MatchedCardIndice de l'etat local
     const { currentPair, matchedCardIndices } = this.state
+    /*
+     * Ici on va vérifier si "index" existe dans le tableau matchedCardIndices
+     * Si index existe alors on retourne true
+     * on le vérifie déjà ici au cas ou on reclique sur une paire deja trouvé
+    */
     const indexMatched = matchedCardIndices.includes(index)
 
+    /**
+     * On vérifie si currentPair est plus petit que deux (donc 0 ou 1)
+     * si plus petit que 2 on effectuer le code ci dessous et fait un return
+     * la suite de la fonction ne s'excutera pas
+     */
     if (currentPair.length < 2) {
       return indexMatched || index === currentPair[0] ? 'visible' : 'hidden'
     }
+
+    /**
+     * Ici on sait que currentPaire.length (le nombre de carte qu'on a révélé)
+     * est plus grand que 1 on va donc vérifier si l'index de la deuxième carte qu'on a retourner
+     * est contenu dans le tableau currentPair.
+     * Si il est contenu dedans cela veux dire que la carte en question vien d'etre retourné
+     * Si indexMatched est true c'est qu'elle vien d'etre Matché a ce tour
+     * autrement c'est qu'on vien de rater une comparaison 😭
+     */
 
     if (currentPair.includes(index)) {
       return indexMatched ? 'justMatched' : 'justMismatched'
     }
 
+    /**
+     * Ici il ne s'agit ne s'agit pas d'une carte que l'on vien de retourner
+     * On vérifie donc elle à déjà été matché pour retourner visible ou hidden
+     */
     return indexMatched ? 'visible' : 'hidden'
   }
   // Arrow fx for binding
@@ -90,10 +116,16 @@ class App extends Component {
     return (
       <div className="memory">
         <GuessCount guesses={guesses} />
+        {/* (Pour mettre un commentaire en jsx il faut l'entourer de {} ) 
+          * Ici la fonction map va permetre de faire une boucle (Comme un foreach php)
+          * pour chaque élément du tableau cards on prend le parametres card
+          * On défini l'index de l'élément dans la variable index
+          */}
+
         {cards.map((card, index) => (
           <Card
-            card={card}
-            key={index}
+            card={card} // card est égale p.ex 🐱
+            key={index} // Index p.ex: 1
             feedback={this.getFeedbackForCard(index)}
             index={index}
             onClick={this.handleCardClick}

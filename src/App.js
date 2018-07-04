@@ -7,7 +7,7 @@ import Card from './Card'
 import GuessCount from './GuessCount'
 import HallOfFame, { FAKE_HOF } from './HallOfFame'
 
-const SIDE = 6
+const SIDE = 3
 const SYMBOLS = '😀🎉💖🎩🐶🐱🦄🐬🌍🌛🌞💫🍎🍌🍓🍐🍟🍿'
 const VISUAL_PAUSE_MSECS = 750
 
@@ -17,7 +17,7 @@ class App extends Component {
     cards: this.generateCards(), // Le tableau contenant nos cards
     currentPair: [], // La paire que l'on est entrain de chercher (ne dépassera jamais 2 éléments)
     guesses: 0, // le nombre d'éssai que l'on à déjà fait
-    matchedCardIndices: [] // Les paire que l'on à déjà trouvé
+    matchedCardIndices: [] // Contient l'index des carte qui ont déja trouvé leur paire
   }
 
   /*
@@ -46,6 +46,7 @@ class App extends Component {
   getFeedbackForCard(index) {
     // ICI on récupère currentPair et MatchedCardIndice de l'etat local
     const { currentPair, matchedCardIndices } = this.state
+
     /*
      * Ici on va vérifier si "index" existe dans le tableau matchedCardIndices
      * Si index existe alors on retourne true
@@ -55,10 +56,13 @@ class App extends Component {
 
     /**
      * On vérifie si currentPair est plus petit que deux (donc 0 ou 1)
-     * si plus petit que 2 on effectuer le code ci dessous et fait un return
+     * si plus petit que 2 on effectue le code ci dessous et fait un return
      * la suite de la fonction ne s'excutera pas
      */
     if (currentPair.length < 2) {
+      // Si l'index de la carte est fait partîe des index deja trouvé
+      // Ou si l'index est la carte que l'on vien de cliquer
+      // Dans ces deux cas on retourn visible autrement on retourn hidden
       return indexMatched || index === currentPair[0] ? 'visible' : 'hidden'
     }
 
@@ -111,16 +115,33 @@ class App extends Component {
   handleNewPairClosedBy(index) {
     // On récupère les valeurs de l'état local
     const { cards, currentPair, guesses, matchedCardIndices } = this.state
-
+    // On initialise une variable qui contiendra l'index de la première carte retourné
+    // ainsi que l'index de la carte que l'on vien de vliqué
     const newPair = [currentPair[0], index]
+    // On initialise une variable incrémentera la valeur de guesses (le nombre de tentative)
     const newGuess = guesses + 1
+
+    // on initialise une variable matched
+    // si les valeur des deux carte aux index contenu dans newPair sont égale
+    // Alors matched et true autrement matched est false
     const matched = cards[newPair[0]] === cards[newPair[1]]
 
+    // On redéfini la valeur de currentPair et guesses de l'etat local
     this.setState({ currentPair: newPair, guesses: newGuess })
+
     if (matched) {
+      // On redéfinie la valeur de matchedCardIndice
+      // cette syntax équivaut un peu à un un array_merge en PHP
+      // les ...TaBleau veulent dire on liste tous les élément du TaBleau
+      // matchedCardIndices contiendra donc toutes les valeur contenu précédemment dans ce tableau
+      // ainsi que les deux index contenu dans newPair
       this.setState({ matchedCardIndices: [...matchedCardIndices, ...newPair] })
     }
 
+    // On reset la valeur de currentPair dans l'état local afin que toute les cartes soit à nouveau "hidden"
+    // Sauf évidemment les paires qui ont déjà été trouvé
+    // Ici on met un timeout sinon une fois qu'on a cliqué sur la deuxième carte on aurai pas le temps de voir
+    // ce qui se passe vu que les carte se redéfinirai automatiquement en "hidden"
     setTimeout(() => this.setState({ currentPair: [] }), VISUAL_PAUSE_MSECS)
   }
 
